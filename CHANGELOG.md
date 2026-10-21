@@ -5,6 +5,7 @@
 - **Auth / Proxy**: fail over from a pinned single pool (`rotateStrategy: "none"` + `proxyPoolId`) when that pool returns a fallbackable error — the retry now walks the other active pools instead of returning "no accounts available", so `oc/deepseek-v4.1-flash-free` (and every other no-auth free provider) no longer hard-fails while healthy relays exist just because one relay's egress IP is blocked upstream
 - **Auth / Proxy**: resolve the returned `proxy:<id>` label from the actual pool, and treat a rotation setting with no usable pool (pools deleted/deactivated) as direct `noauth` again; a rotation whose configured pools were all excluded still fails closed so the host IP cannot leak through an unintended direct egress
 - **OpenCode**: add `deepseek-v4.1-flash-free` to the OpenCode free-lane registry as an `openai`-only model, and keep `.1` ids on the chat-completions lane in the family fallback — OpenCode Zen answers `ModelProtocolUnsupported` on `/messages` and `/responses` for `deepseek-v4.1-*` (the `.0` family keeps its wider formats)
+- **Combos**: fall back to the next account or combo member on the transient gateway statuses 408 Request Timeout, 425 Too Early and 499 Client Closed Request, instead of aborting the chain and handing the error to the client; genuine request-scoped 4xx errors still abort (#4911)
 
 # v0.5.104 (2026-10-15)
 
