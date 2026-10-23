@@ -40,7 +40,12 @@ jobs:
           fi
 
           echo "::notice::Upstream has new commits, merging…"
-          git log --oneline HEAD.."upstream/master" | head -20
+          # ndjson: 不要用 `git log ... | head -20`。
+          # 脚本开了 `set -euo pipefail`，head 读够 20 行就关闭管道，
+          # git log 收到 SIGPIPE（退出码 141），pipefail 判定整条管道失败，
+          # set -e 直接中止 —— merge 一步都跑不到。
+          # 用 git 自己的 -20 限制输出，不产生管道。
+          git --no-pager log --oneline -20 HEAD.."upstream/master"
 
           if ! git merge --no-edit "upstream/master"; then
             git merge --abort || true
